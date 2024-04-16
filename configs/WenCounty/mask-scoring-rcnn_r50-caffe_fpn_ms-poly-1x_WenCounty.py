@@ -15,7 +15,7 @@ model = dict(
             bbox_head=dict(num_classes=2), 
             mask_head=dict(num_classes=2),),
     # model training and testing settings
-    train_cfg=dict(rcnn=dict(mask_thr_binary=0.5),type='EpochBasedTrainLoop',max_epoch='50'))
+    train_cfg=dict(rcnn=dict(mask_thr_binary=0.5),type='EpochBasedTrainLoop',max_epoch=50))
 
 # 修改数据集相关配置
 data_root = 'data/WenCounty/'
@@ -39,6 +39,10 @@ val_dataloader = dict(
         ann_file='annotations/instance_val.json',
         data_prefix=dict(img='val/')))
 test_dataloader = val_dataloader
+
+max_epochs = 50
+train_cfg = dict(max_epochs=max_epochs)
+
 
 # 修改评价指标相关配置
 val_evaluator = dict(ann_file=data_root + 'annotations/instance_val.json')
