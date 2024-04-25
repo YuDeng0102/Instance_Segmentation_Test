@@ -2,6 +2,10 @@ _base_ = [
     '../_base_/datasets/coco_instance.py',
     '../_base_/schedules/schedule_1x.py', '../_base_/default_runtime.py'
 ]
+
+
+
+
 # model settings
 model = dict(
     type='HybridTaskCascade',
@@ -221,3 +225,34 @@ model = dict(
             nms=dict(type='nms', iou_threshold=0.5),
             max_per_img=100,
             mask_thr_binary=0.5)))
+
+# 修改数据集相关配置
+data_root = 'data/WenCounty/'
+metainfo = {
+    'classes': ('tree','massoniana'),
+    'palette': [
+        (220, 20, 60),
+    ]
+}
+train_dataloader = dict(
+    batch_size=5,
+    dataset=dict(
+        data_root=data_root,
+        metainfo=metainfo,
+        ann_file='annotations/instance_train.json',
+        data_prefix=dict(img='train/')))
+val_dataloader = dict(
+    dataset=dict(
+        data_root=data_root,
+        metainfo=metainfo,
+        ann_file='annotations/instance_val.json',
+        data_prefix=dict(img='val/')))
+test_dataloader = val_dataloader
+
+
+
+
+
+# 修改评价指标相关配置
+val_evaluator = dict(ann_file=data_root + 'annotations/instance_val.json')
+test_evaluator = val_evaluator

@@ -19,18 +19,17 @@ param_scheduler = [
 
 
 model=dict(
-        mask_head=dict(num_classes=1))
+        mask_head=dict(num_classes=2))
 
 
 # 修改数据集相关配置
-data_root = 'data/WenCounty/'
+data_root = 'data/GuiZhou/'
 metainfo = {
-    'classes': ('tree',),
+    'classes': ('cedar','massoniana'),
     'palette': [
         (220, 20, 60),
     ]
 }
-
 train_pipeline = [
     dict(type='LoadImageFromFile', backend_args={{_base_.backend_args}}),
     dict(type='LoadAnnotations', with_bbox=True, with_mask=True),
@@ -43,26 +42,23 @@ train_pipeline = [
     dict(type='PackDetInputs')
 ]
 
-
 train_dataloader = dict(
-    batch_size=1,
+    batch_size=5,
     dataset=dict(
         data_root=data_root,
         metainfo=metainfo,
-        ann_file='annotations/instance_train.json',
-        data_prefix=dict(img='train/'),
-        pipeline=train_pipeline
-        ))
+        ann_file='annotations/instances_train2017.json',
+        data_prefix=dict(img='train2017/')))
 val_dataloader = dict(
     dataset=dict(
         data_root=data_root,
         metainfo=metainfo,
-        ann_file='annotations/instance_val.json',
-        data_prefix=dict(img='val/')))
+        ann_file='annotations/instances_val2017.json',
+        data_prefix=dict(img='val2017/')))
 test_dataloader = val_dataloader
 
 # 修改评价指标相关配置
-val_evaluator = dict(ann_file=data_root + 'annotations/instance_val.json')
+val_evaluator = dict(ann_file=data_root + 'annotations/instances_val2017.json')
 test_evaluator = val_evaluator
 
 

@@ -1,4 +1,23 @@
-_base_ = './htc-without-semantic_r50_fpn_1x_coco.py'
+_base_ = '../cascade_rcnn/htc-without-semantic_r50_fpn_1x_coco.py'
+
+max_epochs = 60
+train_cfg = dict(
+    type='EpochBasedTrainLoop', max_epochs=max_epochs, val_interval=5)
+
+param_scheduler = [
+    dict(
+        type='LinearLR', start_factor=0.001, by_epoch=False, begin=0, end=500),
+    dict(
+        type='MultiStepLR',
+        begin=0,
+        end=max_epochs,
+        by_epoch=True,
+        milestones=[32, 48],
+        gamma=0.1)
+]
+
+
+
 model = dict(
     data_preprocessor=dict(pad_seg=True),
     roi_head=dict(

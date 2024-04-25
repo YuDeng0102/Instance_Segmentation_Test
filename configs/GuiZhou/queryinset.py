@@ -4,11 +4,11 @@ _base_ = '../queryinst/queryinst_r50_fpn_1x_coco.py'
 # learning policy
 max_epochs = 60
 train_cfg = dict(
-    type='EpochBasedTrainLoop', max_epochs=max_epochs, val_interval=5)
+    type='EpochBasedTrainLoop', max_epochs=max_epochs, val_interval=10)
 
 param_scheduler = [
     dict(
-        type='LinearLR', start_factor=0.001, by_epoch=False, begin=0, end=500),
+        type='LinearLR', start_factor=0.01, by_epoch=False, begin=0, end=500),
     dict(
         type='MultiStepLR',
         begin=0,
@@ -70,7 +70,7 @@ model = dict(
         bbox_head=[
             dict(
                 type='DIIHead',
-                num_classes=1,
+                num_classes=2,
                 num_ffn_fcs=2,
                 num_heads=8,
                 num_cls_fcs=1,
@@ -114,7 +114,7 @@ model = dict(
                     act_cfg=dict(type='ReLU', inplace=True),
                     norm_cfg=dict(type='LN')),
                 num_convs=4,
-                num_classes=1,
+                num_classes=2,
                 roi_feat_size=14,
                 in_channels=256,
                 conv_kernel_size=3,
@@ -143,11 +143,11 @@ train_pipeline = [
     dict(type='PackDetInputs')
 ]
 
-train_dataloader = dict(dataset=dict(pipeline=train_pipeline))
+
 # 修改数据集相关配置
-data_root = 'data/WenCounty/'
+data_root = 'data/GuiZhou/'
 metainfo = {
-    'classes': ('tree',),
+    'classes': ('cedar','massoniana'),
     'palette': [
         (220, 20, 60),
     ]
@@ -157,17 +157,18 @@ train_dataloader = dict(
     dataset=dict(
         data_root=data_root,
         metainfo=metainfo,
-        ann_file='annotations/instance_train.json',
-        data_prefix=dict(img='train/')))
+        ann_file='annotations/instances_train2017.json',
+        pipeline=train_pipeline,
+        data_prefix=dict(img='train2017/')))
 val_dataloader = dict(
     dataset=dict(
         data_root=data_root,
         metainfo=metainfo,
-        ann_file='annotations/instance_val.json',
-        data_prefix=dict(img='val/')))
+        ann_file='annotations/instances_val2017.json',
+        data_prefix=dict(img='val2017/')))
 test_dataloader = val_dataloader
 # 修改评价指标相关配置
-val_evaluator = dict(ann_file=data_root + 'annotations/instance_val.json')
+val_evaluator = dict(ann_file=data_root + 'annotations/instances_val2017.json')
 test_evaluator = val_evaluator
 
 
