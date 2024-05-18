@@ -85,7 +85,7 @@ train_dataloader = dict(
     dataset=dict(
         type=dataset_type,
         data_root=data_root,
-        ann_file='annotations/instance_train.json',
+        ann_file='annotations/instances_train.json',
         data_prefix=dict(img='train/'),
         pipeline=train_pipeline))
 val_dataloader = dict(

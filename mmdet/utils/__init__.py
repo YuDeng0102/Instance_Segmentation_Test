@@ -15,6 +15,7 @@ from .split_batch import split_batch
 from .typing_utils import (ConfigType, InstanceList, MultiConfig,
                            OptConfigType, OptInstanceList, OptMultiConfig,
                            OptPixelList, PixelList, RangeType)
+from .norm import *
 
 __all__ = [
     'collect_env', 'find_latest_checkpoint', 'update_data_root',
