@@ -1,1 +1,1 @@
-from .samseg_mask2former import *
+from .samseg_model import *
