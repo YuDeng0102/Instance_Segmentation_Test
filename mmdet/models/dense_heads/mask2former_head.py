@@ -7,7 +7,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from mmcv.cnn import Conv2d
 from mmcv.ops import point_sample
-from mmengine.model import ModuleList, caffe2_xavier_init
+from mmengine.model import ModuleList, caffe2_xavier_init, BaseModule
 from mmengine.structures import InstanceData
 from torch import Tensor
 
@@ -96,6 +96,7 @@ class Mask2FormerHead(MaskFormerHead):
                  init_cfg: OptMultiConfig = None,
                  **kwargs) -> None:
         super(AnchorFreeHead, self).__init__(init_cfg=init_cfg)
+        self.init_cfg=init_cfg
         self.num_things_classes = num_things_classes
         self.num_stuff_classes = num_stuff_classes
         self.num_classes = self.num_things_classes + self.num_stuff_classes
@@ -156,6 +157,10 @@ class Mask2FormerHead(MaskFormerHead):
         self.loss_dice = MODELS.build(loss_dice)
 
     def init_weights(self) -> None:
+        if self.init_cfg!=None:
+            BaseModule.init_weights(self)
+            return
+
         for m in self.decoder_input_projs:
             if isinstance(m, Conv2d):
                 caffe2_xavier_init(m, bias=0)

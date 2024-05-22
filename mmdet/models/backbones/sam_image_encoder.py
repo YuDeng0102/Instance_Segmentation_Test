@@ -13,6 +13,7 @@ from typing import Optional, Tuple, Type
 from mmengine.model import BaseModule
 from mmdet.registry import MODELS
 
+
 from transformers.models.sam.modeling_sam import SamVisionEncoder
 
 from ..My_Modules.common import LayerNorm2d, MLPBlock
@@ -125,7 +126,7 @@ class ImageEncoderViT(BaseModule):
 
         x = self.neck(x.permute(0, 3, 1, 2))
 
-        outputs=x+outputs
+        outputs=[x,]+outputs
 
         return outputs
 

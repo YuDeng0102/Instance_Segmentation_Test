@@ -1,6 +1,6 @@
 from typing import Tuple, List
 
-from functorch import einops
+import einops
 from mmcv.cnn import ConvModule, build_norm_layer
 from mmengine.model import BaseModule
 
@@ -20,20 +20,28 @@ class SAMSegMask2Former(Mask2Former):
             *args,
             **kwargs,
     ):
-        peft_config = kwargs.get('backbone', {}).get('peft_config', {})
         super().__init__(*args, **kwargs)
 
-        if peft_config is None:
-            self.backbone.eval()
-            for param in self.backbone.parameters():
+
+        for param in self.backbone.parameters():
                 param.requires_grad = False
+
+
+        with open('params0.txt','w') as f:
+            for name,param in self.named_parameters():
+                if(name.startswith('panoptic_head.')):
+                    newn=name.replace('panoptic_head.','')
+                    f.write(newn)
+                    f.write('\n')
+
+
 
     def extract_feat(self, batch_inputs: Tensor) -> Tuple[Tensor]:
         vision_outputs = self.backbone(batch_inputs)
         if isinstance(vision_outputs, SamVisionEncoderOutput):
             image_embeddings = vision_outputs.last_hidden_state
             vision_hidden_states = vision_outputs.hidden_states
-        elif isinstance(vision_outputs, tuple):
+        elif isinstance(vision_outputs, list) or  isinstance(vision_outputs, tuple):
             image_embeddings = vision_outputs[0]
             vision_hidden_states = vision_outputs
         else:
