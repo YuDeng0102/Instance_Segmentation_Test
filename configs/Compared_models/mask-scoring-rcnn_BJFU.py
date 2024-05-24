@@ -1,6 +1,6 @@
 _base_ = '../ms_rcnn/ms-rcnn_r50-caffe_fpn_1x_coco.py'
 # learning policy
-max_epochs =30
+max_epochs =50
 num_classes=7
 train_cfg = dict(
     type='EpochBasedTrainLoop', max_epochs=max_epochs, val_interval=5)
@@ -34,17 +34,16 @@ model = dict(
             mask_head=dict(num_classes=num_classes),))
 
 # 修改数据集相关配置
-metainfo = {
-    'classes': ('1','2','3','4','5','6','7')
-}
+fold_num=0
+work_dir=f'./work_dirs/mask-scoring-rcnn/BJFU/fold_{fold_num}'
 dataset_type = 'CocoDataset'
-data_root = 'data/datasets_BJFU/fold_0/'
+data_root = f'data/datasets_BJFU/fold_{fold_num}/'
 test_root='data/datasets_BJFU/'
-batch_size = 1
-
 metainfo = {
-    'classes': ('1','2','3','4','5','6','7')
+    'classes': ('2','4','5','7','1','3','6')
 }
+batch_size=7
+
 
 train_dataloader = dict(
     batch_size=batch_size,
@@ -63,7 +62,7 @@ test_dataloader =  dict(
         dataset=dict(
         data_root=test_root,
         metainfo=metainfo,
-        ann_file='annotations/instances_val.json',
+        ann_file='annotations/instances_test.json',
         data_prefix=dict(img='test/')))
 
 # 修改评价指标相关配置

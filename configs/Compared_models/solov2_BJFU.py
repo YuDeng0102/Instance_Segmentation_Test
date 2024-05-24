@@ -1,9 +1,9 @@
 _base_ = '../solov2/solov2_r50_fpn_1x_coco.py'
 
 # learning policy
-max_epochs = 30
+max_epochs = 50
 num_classes=7
-batch_size=3
+batch_size=8
 train_cfg = dict(
     type='EpochBasedTrainLoop', max_epochs=max_epochs, val_interval=5)
 

@@ -25,7 +25,13 @@ class SAMSegMask2Former(Mask2Former):
 
         for param in self.backbone.parameters():
                 param.requires_grad = False
-
+        
+        for name,param in self.named_parameters():
+                if param.requires_grad==True:
+                        print(name)
+        
+        trainable_num = sum(p.numel() for p in self.parameters() if p.requires_grad==True)
+        print(f'tot paramaters:{trainable_num/(2**20)}M')
 
 
     def extract_feat(self, batch_inputs: Tensor) -> Tuple[Tensor]:
@@ -55,6 +61,13 @@ class SAMSegMaskRCNN(MaskRCNN):
 
         for param in self.backbone.parameters():
                 param.requires_grad = False
+
+
+        for name,param in self.named_parameters():
+                if param.requires_grad==True:
+                        print(name)
+        trainable_num = sum(p.numel() for p in self.parameters() if p.requires_grad==True)
+        print(f'tot paramaters:{trainable_num/(2**20)}M')
 
     def extract_feat(self, batch_inputs: Tensor) -> Tuple[Tensor]:
         vision_outputs = self.backbone(batch_inputs)

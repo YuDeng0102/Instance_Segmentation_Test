@@ -2,9 +2,9 @@ _base_ = '../queryinst/queryinst_r50_fpn_1x_coco.py'
 
 
 # learning policy
-max_epochs = 30
+max_epochs = 50
 num_classes=7
-batch_size=2
+batch_size=7
 train_cfg = dict(
     type='EpochBasedTrainLoop', max_epochs=max_epochs, val_interval=10)
 
@@ -147,15 +147,16 @@ train_pipeline = [
 
 
 # 修改数据集相关配置
-metainfo = {
-    'classes': ('1','2','3','4','5','6','7')
-}
+fold_num=0
+work_dir=f'./work_dirs/queryinset/BJFU/fold_{fold_num}'
 dataset_type = 'CocoDataset'
-data_root = 'data/datasets_BJFU/fold_0/'
+data_root = f'data/datasets_BJFU/fold_{fold_num}/'
 test_root='data/datasets_BJFU/'
 metainfo = {
-    'classes': ('1','2','3','4','5','6','7')
+    'classes': ('2','4','5','7','1','3','6')
 }
+batch_size=7
+
 
 train_dataloader = dict(
     batch_size=batch_size,

@@ -289,9 +289,9 @@ val_dataloader = dict(
 test_dataloader =  dict(
         dataset=dict(
         data_root=test_root,
-        pipeline=train_pipeline,
+        pipeline=test_pipeline,
         metainfo=metainfo,
-        ann_file='annotations/instances_val.json',
+        ann_file='annotations/instances_test.json',
         data_prefix=dict(img='test/')))
 
 # 修改评价指标相关配置

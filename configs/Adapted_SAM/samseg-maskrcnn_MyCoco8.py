@@ -1,21 +1,20 @@
 _base_='../_base_/samseg-maskrcnn.py'
 
 fold_num=0
-work_dir=f'./work_dirs/samseg-maskrcnn/BJFU/fold_{fold_num}'
+work_dir=f'./work_dirs/samseg-maskrcnn/MyCoco8/fold_{fold_num}'
 dataset_type = 'CocoDataset'
-data_root = f'data/datasets_BJFU/fold_{fold_num}/'
-test_root='data/datasets_BJFU/'
+data_root = f'data/MyCoco8/fold_{fold_num}/'
+test_root='data/MyCoco8/'
 batch_size = 1
 
 metainfo = {
-    'classes': ('2','4','5','7','1','3','6')
+    'classes': ('Tree','a')
 }
-
 
 resume = False
 
 base_lr=1e-4
-num_things_classes =7
+num_things_classes =2
 num_stuff_classes = 0
 num_classes = num_things_classes + num_stuff_classes
 max_epochs = 30

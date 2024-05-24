@@ -2,7 +2,7 @@ _base_ = '../cascade_rcnn/cascade-mask-rcnn_r50_fpn_20e_coco.py'
 
 
 max_epochs = 50
-num_classes=7
+num_classes=2
 train_cfg = dict(
     type='EpochBasedTrainLoop', max_epochs=max_epochs, val_interval=5)
 
@@ -86,19 +86,17 @@ model = dict(
 
 
 # 修改数据集相关配置
-metainfo = {
-    'classes': ('1','2','3','4','5','6','7')
-}
+
 
 fold_num=0
-work_dir=f'./work_dirs/Cascade-mask-rcnn/BJFU/fold_{fold_num}'
+work_dir=f'./work_dirs/Cascade-mask-rcnn/MyCoco8/fold_{fold_num}'
 dataset_type = 'CocoDataset'
-data_root = f'data/datasets_BJFU/fold_{fold_num}/'
-test_root='data/datasets_BJFU/'
+data_root = f'data/datasets_MyCoco8/fold_{fold_num}/'
+test_root='data/datasets_MyCoco8/'
 batch_size = 8
 
 metainfo = {
-    'classes': ('2','4','5','7','1','3','6')
+    'classes': ('Tree','a')
 }
 
 train_dataloader = dict(

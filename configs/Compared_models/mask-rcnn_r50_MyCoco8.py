@@ -34,12 +34,13 @@ model = dict(
 
 
 fold_num=0
-work_dir=f'./work_dirs/mask-rcnn-r50/BJFU/fold_{fold_num}'
+work_dir=f'./work_dirs/mask-rcnn-r50/MyCoco8/fold_{fold_num}'
 dataset_type = 'CocoDataset'
-data_root = f'data/datasets_BJFU/fold_{fold_num}/'
-test_root='data/datasets_BJFU/'
+data_root = f'data/MyCoco8/fold_{fold_num}/'
+test_root='data/MyCoco8/'
+
 metainfo = {
-    'classes': ('2','4','5','7','1','3','6')
+    'classes': ('Tree','a')
 }
 
 

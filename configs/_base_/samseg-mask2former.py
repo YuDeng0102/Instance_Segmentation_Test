@@ -40,7 +40,7 @@ base_lr=0.0001
 num_things_classes =7
 num_stuff_classes = 0
 num_classes = num_things_classes + num_stuff_classes
-max_epochs = 30
+max_epochs = 55
 
 
 crop_size = (1024, 1024)
@@ -306,7 +306,7 @@ test_dataloader =  dict(
         data_root=test_root,
         pipeline=train_pipeline,
         metainfo=metainfo,
-        ann_file='annotations/instances_val.json',
+        ann_file='annotations/instances_test.json',
         data_prefix=dict(img='test/')))
 
 # 修改评价指标相关配置
