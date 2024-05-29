@@ -2,7 +2,7 @@ from mmengine import Config
 import os
 import subprocess
 
-def prepare_config(base_config_path, fold_index, data_root,work_dir):
+def prepare_config(base_config_path, fold_index, data_root,work_dir,batch_size=1):
     cfg = Config.fromfile(base_config_path)
 
     # 数据相关
@@ -17,8 +17,8 @@ def prepare_config(base_config_path, fold_index, data_root,work_dir):
     cfg.test_evaluator.ann_file=os.path.join(data_root,'annotations','instances_test.json')
 
     #训练设置相关
-    cfg.max_epoch=30
-    cfg.train_cfg.max_epochs=30
+    cfg.max_epoch=10
+    cfg.train_cfg.max_epochs=10
     cfg.train_cfg.val_interval=5
     cfg.default_hooks.checkpoint=dict(
         interval=1,  # 验证间隔
@@ -26,9 +26,10 @@ def prepare_config(base_config_path, fold_index, data_root,work_dir):
         save_best='coco/segm_mAP',  # 按照该指标保存最优模型
         type='CheckpointHook')
 
-    cfg.train_dataloader.batch_size=1
-    cfg.val_dataloader.batch_size=1
-    cfg.test_dataloader.batch_size=1
+
+    cfg.train_dataloader.batch_size=batch_size
+    cfg.val_dataloader.batch_size=batch_size
+    cfg.test_dataloader.batch_size=batch_size
 
     # 更新工作目录，每个折保存自己的输出
 
@@ -39,8 +40,9 @@ def main(args):
     work_dir=args.work_dir
     cfg_path=args.cfg_path
     data_root=args.data_root
+    batch_size=args.batch_size
     for i in range(args.start_fold,5):
-        cfg=prepare_config(cfg_path,i,data_root,work_dir)
+        cfg=prepare_config(cfg_path,i,data_root,work_dir,batch_size)
         cfg.dump(cfg_path)
         if args.train==True:
             if args.resume==False or i != args.start_fold:
@@ -69,6 +71,8 @@ if __name__ == "__main__":
                         help='从第几折开始训练')
     parser.add_argument('--resume_dir',default='./work_dirs/solov2/fold_0/epoch_9.pth',type=str,
                         help='work_dir的路径')
+    parser.add_argument('--batch_size', default=1, type=int,
+                        help='batch_size')
 
     args = parser.parse_args()
 

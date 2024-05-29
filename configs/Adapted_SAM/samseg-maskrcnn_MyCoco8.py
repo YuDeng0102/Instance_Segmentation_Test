@@ -8,13 +8,13 @@ test_root='data/MyCoco8/'
 batch_size = 1
 
 metainfo = {
-    'classes': ('Tree','a')
+    'classes': ('Tree',)
 }
 
 resume = False
 
 base_lr=1e-4
-num_things_classes =2
+num_things_classes =1
 num_stuff_classes = 0
 num_classes = num_things_classes + num_stuff_classes
 max_epochs = 30

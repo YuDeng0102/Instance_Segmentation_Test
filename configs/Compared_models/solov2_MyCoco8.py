@@ -1,7 +1,7 @@
 auto_scale_lr = dict(base_batch_size=16, enable=False)
 backend_args = None
-batch_size = 8
-data_root = 'data/datasets_BJFU/fold_4'
+batch_size = 1
+data_root = './data/MyCoco8/fold_0'
 dataset_type = 'CocoDataset'
 default_hooks = dict(
     checkpoint=dict(
@@ -19,24 +19,17 @@ env_cfg = dict(
     cudnn_benchmark=False,
     dist_cfg=dict(backend='nccl'),
     mp_cfg=dict(mp_start_method='fork', opencv_num_threads=0))
-fold_num = 0
-load_from = 'https://download.openmmlab.com/mmdetection/v2.0/mask_rcnn/mask_rcnn_r50_caffe_fpn_mstrain-poly_3x_coco/mask_rcnn_r50_caffe_fpn_mstrain-poly_3x_coco_bbox_mAP-0.408__segm_mAP-0.37_20200504_163245-42aa3d00.pth'
+load_from = 'https://download.openmmlab.com/mmdetection/v2.0/solov2/solov2_r50_fpn_3x_coco/solov2_r50_fpn_3x_coco_20220512_125856-fed092d4.pth'
 log_level = 'INFO'
 log_processor = dict(by_epoch=True, type='LogProcessor', window_size=50)
 max_epoch = 10
 max_epochs = 50
-metainfo = {
-    'classes': ('2','4','5','7','tree','1','3','6')
-}
-
-
+metainfo = dict(classes='Tree')
 model = dict(
     backbone=dict(
         depth=50,
         frozen_stages=1,
         init_cfg=dict(checkpoint='torchvision://resnet50', type='Pretrained'),
-        norm_cfg=dict(requires_grad=True, type='BN'),
-        norm_eval=True,
         num_stages=4,
         out_indices=(
             0,
@@ -61,6 +54,64 @@ model = dict(
             57.375,
         ],
         type='DetDataPreprocessor'),
+    mask_head=dict(
+        cls_down_index=0,
+        feat_channels=512,
+        in_channels=256,
+        loss_cls=dict(
+            alpha=0.25,
+            gamma=2.0,
+            loss_weight=1.0,
+            type='FocalLoss',
+            use_sigmoid=True),
+        loss_mask=dict(loss_weight=3.0, type='DiceLoss', use_sigmoid=True),
+        mask_feature_head=dict(
+            end_level=3,
+            feat_channels=128,
+            mask_stride=4,
+            norm_cfg=dict(num_groups=32, requires_grad=True, type='GN'),
+            out_channels=256,
+            start_level=0),
+        num_classes=1,
+        num_grids=[
+            40,
+            36,
+            24,
+            16,
+            12,
+        ],
+        pos_scale=0.2,
+        scale_ranges=(
+            (
+                1,
+                96,
+            ),
+            (
+                48,
+                192,
+            ),
+            (
+                96,
+                384,
+            ),
+            (
+                192,
+                768,
+            ),
+            (
+                384,
+                2048,
+            ),
+        ),
+        stacked_convs=4,
+        strides=[
+            8,
+            8,
+            16,
+            32,
+            32,
+        ],
+        type='SOLOV2Head'),
     neck=dict(
         in_channels=[
             256,
@@ -70,165 +121,38 @@ model = dict(
         ],
         num_outs=5,
         out_channels=256,
+        start_level=0,
         type='FPN'),
-    roi_head=dict(
-        bbox_head=dict(
-            bbox_coder=dict(
-                target_means=[
-                    0.0,
-                    0.0,
-                    0.0,
-                    0.0,
-                ],
-                target_stds=[
-                    0.1,
-                    0.1,
-                    0.2,
-                    0.2,
-                ],
-                type='DeltaXYWHBBoxCoder'),
-            fc_out_channels=1024,
-            in_channels=256,
-            loss_bbox=dict(loss_weight=1.0, type='L1Loss'),
-            loss_cls=dict(
-                loss_weight=1.0, type='CrossEntropyLoss', use_sigmoid=False),
-            num_classes=8,
-            reg_class_agnostic=False,
-            roi_feat_size=7,
-            type='Shared2FCBBoxHead'),
-        bbox_roi_extractor=dict(
-            featmap_strides=[
-                4,
-                8,
-                16,
-                32,
-            ],
-            out_channels=256,
-            roi_layer=dict(output_size=7, sampling_ratio=0, type='RoIAlign'),
-            type='SingleRoIExtractor'),
-        mask_head=dict(
-            conv_out_channels=256,
-            in_channels=256,
-            loss_mask=dict(
-                loss_weight=1.0, type='CrossEntropyLoss', use_mask=True),
-            num_classes=8,
-            num_convs=4,
-            type='FCNMaskHead'),
-        mask_roi_extractor=dict(
-            featmap_strides=[
-                4,
-                8,
-                16,
-                32,
-            ],
-            out_channels=256,
-            roi_layer=dict(output_size=14, sampling_ratio=0, type='RoIAlign'),
-            type='SingleRoIExtractor'),
-        type='StandardRoIHead'),
-    rpn_head=dict(
-        anchor_generator=dict(
-            ratios=[
-                0.5,
-                1.0,
-                2.0,
-            ],
-            scales=[
-                8,
-            ],
-            strides=[
-                4,
-                8,
-                16,
-                32,
-                64,
-            ],
-            type='AnchorGenerator'),
-        bbox_coder=dict(
-            target_means=[
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-            ],
-            target_stds=[
-                1.0,
-                1.0,
-                1.0,
-                1.0,
-            ],
-            type='DeltaXYWHBBoxCoder'),
-        feat_channels=256,
-        in_channels=256,
-        loss_bbox=dict(loss_weight=1.0, type='L1Loss'),
-        loss_cls=dict(
-            loss_weight=1.0, type='CrossEntropyLoss', use_sigmoid=True),
-        type='RPNHead'),
     test_cfg=dict(
-        rcnn=dict(
-            mask_thr_binary=0.5,
-            max_per_img=100,
-            nms=dict(iou_threshold=0.5, type='nms'),
-            score_thr=0.05),
-        rpn=dict(
-            max_per_img=1000,
-            min_bbox_size=0,
-            nms=dict(iou_threshold=0.7, type='nms'),
-            nms_pre=1000)),
-    train_cfg=dict(
-        rcnn=dict(
-            assigner=dict(
-                ignore_iof_thr=-1,
-                match_low_quality=True,
-                min_pos_iou=0.5,
-                neg_iou_thr=0.5,
-                pos_iou_thr=0.5,
-                type='MaxIoUAssigner'),
-            debug=False,
-            mask_size=28,
-            pos_weight=-1,
-            sampler=dict(
-                add_gt_as_proposals=True,
-                neg_pos_ub=-1,
-                num=512,
-                pos_fraction=0.25,
-                type='RandomSampler')),
-        rpn=dict(
-            allowed_border=-1,
-            assigner=dict(
-                ignore_iof_thr=-1,
-                match_low_quality=True,
-                min_pos_iou=0.3,
-                neg_iou_thr=0.3,
-                pos_iou_thr=0.7,
-                type='MaxIoUAssigner'),
-            debug=False,
-            pos_weight=-1,
-            sampler=dict(
-                add_gt_as_proposals=False,
-                neg_pos_ub=-1,
-                num=256,
-                pos_fraction=0.5,
-                type='RandomSampler')),
-        rpn_proposal=dict(
-            max_per_img=1000,
-            min_bbox_size=0,
-            nms=dict(iou_threshold=0.7, type='nms'),
-            nms_pre=2000)),
-    type='MaskRCNN')
-num_classes = 8
+        filter_thr=0.05,
+        kernel='gaussian',
+        mask_thr=0.5,
+        max_per_img=100,
+        nms_pre=500,
+        score_thr=0.1,
+        sigma=2.0),
+    type='SOLOv2')
+num_classes = 1
 optim_wrapper = dict(
-    optimizer=dict(lr=0.02, momentum=0.9, type='SGD', weight_decay=0.0001),
+    clip_grad=dict(max_norm=35, norm_type=2),
+    optimizer=dict(lr=0.01, momentum=0.9, type='SGD', weight_decay=0.0001),
     type='OptimWrapper')
 param_scheduler = [
-    dict(begin=0, by_epoch=False, end=500, start_factor=0.01, type='LinearLR'),
+    dict(
+        begin=0,
+        by_epoch=False,
+        end=500,
+        start_factor=0.3333333333333333,
+        type='LinearLR'),
     dict(
         begin=0,
         by_epoch=True,
         end=50,
         gamma=0.1,
         milestones=[
-            22,
-            34,
+            16,
+            27,
+            40,
         ],
         type='MultiStepLR'),
 ]
@@ -239,9 +163,9 @@ test_dataloader = dict(
     dataset=dict(
         ann_file='annotations/instances_test.json',
         backend_args=None,
-        metainfo=metainfo,
         data_prefix=dict(img='test/'),
-        data_root='data/datasets_BJFU',
+        data_root='./data/MyCoco8',
+        metainfo=dict(classes=('Tree', )),
         pipeline=[
             dict(backend_args=None, type='LoadImageFromFile'),
             dict(keep_ratio=True, scale=(
@@ -266,13 +190,10 @@ test_dataloader = dict(
     persistent_workers=True,
     sampler=dict(shuffle=False, type='DefaultSampler'))
 test_evaluator = dict(
-    ann_file='data/datasets_BJFU/annotations/instances_test.json',
+    ann_file='./data/MyCoco8/annotations/instances_test.json',
     backend_args=None,
     format_only=False,
-    metric=[
-        'bbox',
-        'segm',
-    ],
+    metric='segm',
     type='CocoMetric')
 test_pipeline = [
     dict(backend_args=None, type='LoadImageFromFile'),
@@ -298,11 +219,11 @@ train_dataloader = dict(
     batch_size=1,
     dataset=dict(
         ann_file='annotations/instances_train.json',
-        metainfo=metainfo,
         backend_args=None,
         data_prefix=dict(img='train/'),
-        data_root='data/datasets_BJFU/fold_4',
+        data_root='./data/MyCoco8/fold_0',
         filter_cfg=dict(filter_empty_gt=True, min_size=32),
+        metainfo=dict(classes=('Tree', )),
         pipeline=[
             dict(backend_args=None, type='LoadImageFromFile'),
             dict(type='LoadAnnotations', with_bbox=True, with_mask=True),
@@ -332,10 +253,10 @@ val_dataloader = dict(
     batch_size=1,
     dataset=dict(
         ann_file='annotations/instances_val.json',
-        metainfo=metainfo,
         backend_args=None,
         data_prefix=dict(img='val/'),
-        data_root='data/datasets_BJFU/fold_4',
+        data_root='./data/MyCoco8/fold_0',
+        metainfo=dict(classes=('Tree', )),
         pipeline=[
             dict(backend_args=None, type='LoadImageFromFile'),
             dict(keep_ratio=True, scale=(
@@ -360,13 +281,10 @@ val_dataloader = dict(
     persistent_workers=True,
     sampler=dict(shuffle=False, type='DefaultSampler'))
 val_evaluator = dict(
-    ann_file='data/datasets_BJFU/fold_4/annotations/instances_val.json',
+    ann_file='./data/MyCoco8/fold_0/annotations/instances_val.json',
     backend_args=None,
     format_only=False,
-    metric=[
-        'bbox',
-        'segm',
-    ],
+    metric='segm',
     type='CocoMetric')
 vis_backends = [
     dict(type='LocalVisBackend'),
@@ -377,4 +295,4 @@ visualizer = dict(
     vis_backends=[
         dict(type='LocalVisBackend'),
     ])
-work_dir = './work_dirs/mask-rcnn/BJFU/fold_4'
+work_dir = './work_dirs/solov2_MyCoco8/fold_0'

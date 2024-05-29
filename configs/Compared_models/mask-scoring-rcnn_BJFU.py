@@ -1,7 +1,7 @@
 _base_ = '../ms_rcnn/ms-rcnn_r50-caffe_fpn_1x_coco.py'
 # learning policy
 max_epochs =50
-num_classes=7
+num_classes=8
 train_cfg = dict(
     type='EpochBasedTrainLoop', max_epochs=max_epochs, val_interval=5)
 
@@ -39,11 +39,12 @@ work_dir=f'./work_dirs/mask-scoring-rcnn/BJFU/fold_{fold_num}'
 dataset_type = 'CocoDataset'
 data_root = f'data/datasets_BJFU/fold_{fold_num}/'
 test_root='data/datasets_BJFU/'
-metainfo = {
-    'classes': ('2','4','5','7','1','3','6')
-}
+
 batch_size=7
 
+metainfo = {
+    'classes': ('2','4','5','7','tree','1','3','6')
+}
 
 train_dataloader = dict(
     batch_size=batch_size,

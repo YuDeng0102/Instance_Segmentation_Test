@@ -9,7 +9,7 @@ batch_size = 1
 fold_dir=f'fold_{fold_num}'
 train_and_val_dataroot=data_root+fold_dir+'/'
 metainfo = {
-    'classes': ('2','4','5','7','1','3','6')
+    'classes': ('2','4','5','7','tree','1','3','6')
 }
 
 
@@ -17,11 +17,11 @@ metainfo = {
 resume = False
 
 base_lr=1e-4
-num_things_classes =7
+num_things_classes =8
 num_stuff_classes = 0
 num_classes = num_things_classes + num_stuff_classes
 max_epochs = 30
-num_queries =70
+num_queries =100
 
 model = dict(
     type='SAMSegMask2Former',

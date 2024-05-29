@@ -9,13 +9,13 @@ batch_size = 4
 fold_dir=f'fold_{fold_num}'
 train_and_val_dataroot=data_root+fold_dir+'/'
 metainfo = {
-    'classes': ('Tree','a')
+    'classes': ('Tree')
 }
 
 resume = False
 
 base_lr=1e-4
-num_things_classes =2
+num_things_classes =1
 num_stuff_classes = 0
 num_classes = num_things_classes + num_stuff_classes
 max_epochs = 30

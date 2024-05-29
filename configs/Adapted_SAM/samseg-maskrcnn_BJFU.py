@@ -8,18 +8,17 @@ test_root='data/datasets_BJFU/'
 batch_size = 1
 
 metainfo = {
-    'classes': ('2','4','5','7','1','3','6')
+    'classes': ('2','4','5','7','tree','1','3','6')
 }
-
 
 resume = False
 
 base_lr=1e-4
-num_things_classes =7
+num_things_classes =8
 num_stuff_classes = 0
 num_classes = num_things_classes + num_stuff_classes
 max_epochs = 30
-num_queries =70
+num_queries =100
 
 model = dict(
     type='SAMSegMaskRCNN',

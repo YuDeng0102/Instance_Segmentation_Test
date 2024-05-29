@@ -3,8 +3,8 @@ _base_ = '../queryinst/queryinst_r50_fpn_1x_coco.py'
 
 # learning policy
 max_epochs = 50
-num_classes=7
-batch_size=7
+num_classes=8
+batch_size=2
 train_cfg = dict(
     type='EpochBasedTrainLoop', max_epochs=max_epochs, val_interval=10)
 
@@ -152,11 +152,11 @@ work_dir=f'./work_dirs/queryinset/BJFU/fold_{fold_num}'
 dataset_type = 'CocoDataset'
 data_root = f'data/datasets_BJFU/fold_{fold_num}/'
 test_root='data/datasets_BJFU/'
-metainfo = {
-    'classes': ('2','4','5','7','1','3','6')
-}
 batch_size=7
 
+metainfo = {
+    'classes': ('2','4','5','7','tree','1','3','6')
+}
 
 train_dataloader = dict(
     batch_size=batch_size,
@@ -174,8 +174,8 @@ val_dataloader = dict(
 test_dataloader =  dict(
         dataset=dict(
         data_root=test_root,
-        metainfo=metainfo,
-        ann_file='annotations/instances_val.json',
+            metainfo=metainfo,
+        ann_file='annotations/instances_test.json',
         data_prefix=dict(img='test/')))
 
 # 修改评价指标相关配置
