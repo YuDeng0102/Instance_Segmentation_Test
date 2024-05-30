@@ -17,9 +17,9 @@ def prepare_config(base_config_path, fold_index, data_root,work_dir,batch_size=1
     cfg.test_evaluator.ann_file=os.path.join(data_root,'annotations','instances_test.json')
 
     #训练设置相关
-    cfg.max_epoch=10
-    cfg.train_cfg.max_epochs=10
-    cfg.train_cfg.val_interval=5
+    cfg.max_epoch=30
+    cfg.train_cfg.max_epochs=30
+    cfg.train_cfg.val_interval=3
     cfg.default_hooks.checkpoint=dict(
         interval=1,  # 验证间隔
         max_keep_ckpts=2,  # 最多保存多少个权重文件
