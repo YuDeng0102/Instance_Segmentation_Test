@@ -22,16 +22,21 @@ class SAMSegMask2Former(Mask2Former):
     ):
         super().__init__(*args, **kwargs)
 
-
-        for param in self.backbone.parameters():
-                param.requires_grad = False
+        require_img_encoder = ['adapter', 'prompt_generator']
+        for name,param in self.backbone.named_parameters():
+            requires_grad = False
+            for u in require_img_encoder:
+                if u in name:
+                    requires_grad = True
+                    break
+            param.requires_grad = requires_grad
         
-        for name,param in self.named_parameters():
-                if param.requires_grad==True:
-                        print(name)
+        # for name,param in self.named_parameters():
+        #         if param.requires_grad==True:
+        #                 print(name)
         
-        trainable_num = sum(p.numel() for p in self.parameters() if p.requires_grad==True)
-        print(f'tot paramaters:{trainable_num/(2**20)}M')
+        # trainable_num = sum(p.numel() for p in self.parameters() if p.requires_grad==True)
+        # print(f'tot paramaters:{trainable_num/(2**20)}M')
 
 
     def extract_feat(self, batch_inputs: Tensor) -> Tuple[Tensor]:

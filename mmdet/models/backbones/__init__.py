@@ -18,11 +18,12 @@ from .ssd_vgg import SSDVGG
 from .swin import SwinTransformer
 from .trident_resnet import TridentResNet
 from .sam_image_encoder import ImageEncoderViT
+from .Adapted_sam_image_encoder import Adapted_ImageEncoderViT
 
 __all__ = [
     'RegNet', 'ResNet', 'ResNetV1d', 'ResNeXt', 'SSDVGG', 'HRNet',
     'MobileNetV2', 'Res2Net', 'HourglassNet', 'DetectoRS_ResNet',
     'DetectoRS_ResNeXt', 'Darknet', 'ResNeSt', 'TridentResNet', 'CSPDarknet',
     'SwinTransformer', 'PyramidVisionTransformer',
-    'PyramidVisionTransformerV2', 'EfficientNet', 'CSPNeXt','ImageEncoderViT'
+    'PyramidVisionTransformerV2', 'EfficientNet', 'CSPNeXt','ImageEncoderViT','Adapted_ImageEncoderViT',
 ]

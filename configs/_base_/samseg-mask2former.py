@@ -93,7 +93,7 @@ sam_pretrain_name = "sam-vit-base"
 sam_pretrain_ckpt_path = "checkpoints/sam_vit_b_01ec64.pth"
 
 
-mask2former_head_ckpt_path='checkpoints/mask2former_r50.pth'
+# mask2former_head_ckpt_path='checkpoints/mask2former_r50.pth'
 
 num_queries =100
 
@@ -123,8 +123,6 @@ model = dict(
         ),
     ),
     panoptic_head=dict(
-        init_cfg=dict(
-            checkpoint=mask2former_head_ckpt_path, type='Pretrained'),
         type='Mask2FormerHead',
         in_channels=[256, 256, 256, 256],  # pass to pixel_decoder inside
         feat_channels=256,
@@ -134,8 +132,6 @@ model = dict(
         num_queries=num_queries,
         num_transformer_feat_level=3,
         pixel_decoder=dict(
-            init_cfg=dict(
-                checkpoint=mask2former_head_ckpt_path, type='Pretrained'),
             type='MSDeformAttnPixelDecoder',
             strides=[4, 8, 16, 32],
             num_outs=3,
@@ -232,6 +228,7 @@ model = dict(
         # it will filter mask area where score is less than 0.5 .
         filter_low_score=True),
 )
+load_form='https://download.openmmlab.com/mmdetection/v3.0/mask2former/mask2former_r50_8xb2-lsj-50e_coco-panoptic/mask2former_r50_8xb2-lsj-50e_coco-panoptic_20230118_125535-54df384a.pth'
 
 backend_args = None
 
@@ -281,9 +278,8 @@ fold_num=0
 fold_dir=f'fold_{fold_num}'
 train_and_val_dataroot=data_root+fold_dir+'/'
 
-
 metainfo = {
-    'classes': ('1','2','3','4','5','6','7')
+    'classes': ('2','4','5','7','tree','1','3','6')
 }
 
 train_dataloader = dict(
