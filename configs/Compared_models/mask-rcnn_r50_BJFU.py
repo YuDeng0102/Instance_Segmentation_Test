@@ -26,7 +26,7 @@ log_processor = dict(by_epoch=True, type='LogProcessor', window_size=50)
 max_epoch = 10
 max_epochs = 50
 metainfo = {
-    'classes': ('2','4','5','7','tree','1','3','6')
+    'classes': ('Tree',)
 }
 
 
@@ -92,7 +92,7 @@ model = dict(
             loss_bbox=dict(loss_weight=1.0, type='L1Loss'),
             loss_cls=dict(
                 loss_weight=1.0, type='CrossEntropyLoss', use_sigmoid=False),
-            num_classes=8,
+            num_classes=1,
             reg_class_agnostic=False,
             roi_feat_size=7,
             type='Shared2FCBBoxHead'),
@@ -111,7 +111,7 @@ model = dict(
             in_channels=256,
             loss_mask=dict(
                 loss_weight=1.0, type='CrossEntropyLoss', use_mask=True),
-            num_classes=8,
+            num_classes=1,
             num_convs=4,
             type='FCNMaskHead'),
         mask_roi_extractor=dict(
@@ -215,9 +215,9 @@ model = dict(
             nms=dict(iou_threshold=0.7, type='nms'),
             nms_pre=2000)),
     type='MaskRCNN')
-num_classes = 8
+num_classes = 1
 optim_wrapper = dict(
-    optimizer=dict(lr=0.02, momentum=0.9, type='SGD', weight_decay=0.0001),
+    optimizer=dict(lr=0.0002, momentum=0.9, type='SGD', weight_decay=0.0001),
     type='OptimWrapper')
 param_scheduler = [
     dict(begin=0, by_epoch=False, end=500, start_factor=0.01, type='LinearLR'),

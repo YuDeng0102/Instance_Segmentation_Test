@@ -2,7 +2,7 @@ _base_ = '../cascade_rcnn/cascade-mask-rcnn_r50_fpn_20e_coco.py'
 
 
 max_epochs = 50
-num_classes=8
+num_classes=1
 train_cfg = dict(
     type='EpochBasedTrainLoop', max_epochs=max_epochs, val_interval=5)
 
@@ -87,7 +87,7 @@ model = dict(
 
 # 修改数据集相关配置
 metainfo = {
-    'classes': ('2','4','5','7','tree','1','3','6')
+    'classes': ('Tree',)
 }
 
 fold_num=0

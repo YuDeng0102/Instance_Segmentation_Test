@@ -1,15 +1,14 @@
-
 _base_='../_base_/samseg-maskrcnn.py'
 
 fold_num=0
-work_dir=f'./work_dirs/samseg-maskrcnn/BJFU/fold_{fold_num}'
+work_dir=f'./work_dirs/samseg-maskrcnn/MyCoco8/fold_{fold_num}'
 dataset_type = 'CocoDataset'
-data_root = f'data/datasets_BJFU/fold_{fold_num}/'
-test_root='data/datasets_BJFU/'
+data_root = f'data/MyCoco8/fold_{fold_num}/'
+test_root='data/MyCoco8/'
 batch_size = 1
 
 metainfo = {
-    'classes': ('Tree',)
+    'classes': ('crown',)
 }
 
 resume = False
@@ -19,16 +18,10 @@ num_things_classes =1
 num_stuff_classes = 0
 num_classes = num_things_classes + num_stuff_classes
 max_epochs = 30
-num_queries =100
-sam_pretrain_ckpt_path = "checkpoints/sam_vit_b_01ec64.pth"
-
+num_queries =70
 
 model = dict(
     type='SAMSegMaskRCNN',
-    backbone=dict(
-        init_cfg=dict(
-            checkpoint=sam_pretrain_ckpt_path, type='Pretrained'),
-        type='Adapted_ImageEncoderViT'),
     roi_head=dict(
         type='StandardRoIHead',
         bbox_roi_extractor=dict(

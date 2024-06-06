@@ -9,7 +9,7 @@ dataset_type = 'CocoDataset'
 default_hooks = dict(
     checkpoint=dict(
         interval=1,
-        max_keep_ckpts=2,
+        max_keep_ckpts=1,
         save_best='coco/segm_mAP',
         type='CheckpointHook'),
     logger=dict(interval=50, type='LoggerHook'),
@@ -36,18 +36,9 @@ input_size = 550
 load_from = 'https://download.openmmlab.com/mmdetection/v2.0/yolact/yolact_r101_1x8_coco/yolact_r101_1x8_coco_20200908-4cbe9101.pth'
 log_level = 'INFO'
 log_processor = dict(by_epoch=True, type='LogProcessor', window_size=50)
-max_epoch = 10
+max_epoch = 30
 max_epochs = 100
-metainfo = dict(classes=(
-    '2',
-    '4',
-    '5',
-    '7',
-    'tree',
-    '1',
-    '3',
-    '6',
-))
+metainfo = (dict(classes=('Tree', )), )
 model = dict(
     backbone=dict(
         depth=101,
@@ -133,7 +124,7 @@ model = dict(
             reduction='none',
             type='CrossEntropyLoss',
             use_sigmoid=False),
-        num_classes=8,
+        num_classes=1,
         num_head_convs=1,
         num_protos=32,
         type='YOLACTHead',
@@ -158,7 +149,7 @@ model = dict(
         loss_segm=dict(
             loss_weight=1.0, type='CrossEntropyLoss', use_sigmoid=True),
         max_masks_to_train=100,
-        num_classes=8,
+        num_classes=1,
         num_protos=32,
         type='YOLACTProtonet',
         with_seg_branch=True),
@@ -198,7 +189,7 @@ model = dict(
         pos_weight=-1,
         sampler=dict(type='PseudoSampler')),
     type='YOLACT')
-num_classes = 8
+num_classes = 1
 optim_wrapper = dict(
     optimizer=dict(lr=0.001, momentum=0.9, type='SGD', weight_decay=0.0005),
     type='OptimWrapper')
@@ -223,17 +214,8 @@ test_dataloader = dict(
         ann_file='annotations/instances_test.json',
         backend_args=None,
         data_prefix=dict(img='test/'),
-        data_root='./data/datasets_BJFU/',
-        metainfo=dict(classes=(
-            '2',
-            '4',
-            '5',
-            '7',
-            'tree',
-            '1',
-            '3',
-            '6',
-        )),
+        data_root='data/datasets_BJFU',
+        metainfo=dict(classes=('Tree', )),
         pipeline=[
             dict(backend_args=None, type='LoadImageFromFile'),
             dict(keep_ratio=False, scale=(
@@ -258,7 +240,7 @@ test_dataloader = dict(
     persistent_workers=True,
     sampler=dict(shuffle=False, type='DefaultSampler'))
 test_evaluator = dict(
-    ann_file='./data/datasets_BJFU/annotations/instances_test.json',
+    ann_file='data/datasets_BJFU/annotations/instances_test.json',
     backend_args=None,
     format_only=False,
     metric=[
@@ -284,7 +266,7 @@ test_pipeline = [
         type='PackDetInputs'),
 ]
 test_root = 'data/datasets_BJFU/'
-train_cfg = dict(max_epochs=10, type='EpochBasedTrainLoop', val_interval=5)
+train_cfg = dict(max_epochs=30, type='EpochBasedTrainLoop', val_interval=1)
 train_dataloader = dict(
     batch_sampler=None,
     batch_size=1,
@@ -292,18 +274,9 @@ train_dataloader = dict(
         ann_file='annotations/instances_train.json',
         backend_args=None,
         data_prefix=dict(img='train/'),
-        data_root='./data/datasets_BJFU/fold_0',
+        data_root='data/datasets_BJFU',
         filter_cfg=dict(filter_empty_gt=True, min_size=32),
-        metainfo=dict(classes=(
-            '2',
-            '4',
-            '5',
-            '7',
-            'tree',
-            '1',
-            '3',
-            '6',
-        )),
+        metainfo=dict(classes=('Tree', )),
         pipeline=[
             dict(backend_args=None, type='LoadImageFromFile'),
             dict(type='LoadAnnotations', with_bbox=True, with_mask=True),
@@ -411,17 +384,8 @@ val_dataloader = dict(
         ann_file='annotations/instances_val.json',
         backend_args=None,
         data_prefix=dict(img='val/'),
-        data_root='./data/datasets_BJFU/fold_0',
-        metainfo=dict(classes=(
-            '2',
-            '4',
-            '5',
-            '7',
-            'tree',
-            '1',
-            '3',
-            '6',
-        )),
+        data_root='data/datasets_BJFU',
+        metainfo=dict(classes=('Tree', )),
         pipeline=[
             dict(backend_args=None, type='LoadImageFromFile'),
             dict(keep_ratio=False, scale=(
@@ -446,7 +410,7 @@ val_dataloader = dict(
     persistent_workers=True,
     sampler=dict(shuffle=False, type='DefaultSampler'))
 val_evaluator = dict(
-    ann_file='./data/datasets_BJFU/fold_0/annotations/instances_val.json',
+    ann_file='data/datasets_BJFU/annotations/instances_val.json',
     backend_args=None,
     format_only=False,
     metric=[
@@ -463,4 +427,4 @@ visualizer = dict(
     vis_backends=[
         dict(type='LocalVisBackend'),
     ])
-work_dir = './work_dirs/Yolact_BJFU/fold_0'
+work_dir = './work_dirs/Yolact_BJFU'

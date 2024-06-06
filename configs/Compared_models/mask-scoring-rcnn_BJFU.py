@@ -1,7 +1,7 @@
 _base_ = '../ms_rcnn/ms-rcnn_r50-caffe_fpn_1x_coco.py'
 # learning policy
 max_epochs =50
-num_classes=8
+num_classes=1
 train_cfg = dict(
     type='EpochBasedTrainLoop', max_epochs=max_epochs, val_interval=5)
 
@@ -43,7 +43,7 @@ test_root='data/datasets_BJFU/'
 batch_size=7
 
 metainfo = {
-    'classes': ('2','4','5','7','tree','1','3','6')
+    'classes': ('Tree',)
 }
 
 train_dataloader = dict(

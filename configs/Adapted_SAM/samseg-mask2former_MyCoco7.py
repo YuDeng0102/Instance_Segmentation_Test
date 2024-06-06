@@ -1,35 +1,28 @@
 _base_='../_base_/samseg-mask2former.py'
 
 fold_num=0
-work_dir=f'./work_dirs/samseg-mask2former/BJFU/fold_{fold_num}'
+work_dir=f'./work_dirs/samseg-mask2former/MyCoco7/fold_{fold_num}'
 dataset_type = 'CocoDataset'
-data_root = f'data/datasets_BJFU/fold_{fold_num}/'
-test_root='data/datasets_BJFU/'
-batch_size = 1
+data_root = f'data/MyCoco7/fold_{fold_num}/'
+test_root='data/MyCoco7/'
+batch_size = 3
 fold_dir=f'fold_{fold_num}'
 train_and_val_dataroot=data_root+fold_dir+'/'
 metainfo = {
-    'classes': ('Tree',)
+    'classes': ('crown')
 }
-
-
 
 resume = False
 
 base_lr=1e-4
-num_things_classes =8
+num_things_classes =1
 num_stuff_classes = 0
 num_classes = num_things_classes + num_stuff_classes
 max_epochs = 30
 num_queries =100
-sam_pretrain_ckpt_path = "checkpoints/sam_vit_b_01ec64.pth"
 
 model = dict(
     type='SAMSegMask2Former',
-    backbone=dict(
-            init_cfg=dict(
-                checkpoint=sam_pretrain_ckpt_path, type='Pretrained'),
-            type='Adapted_ImageEncoderViT'),
     panoptic_head=dict(
         type='Mask2FormerHead',
         num_things_classes=num_things_classes,

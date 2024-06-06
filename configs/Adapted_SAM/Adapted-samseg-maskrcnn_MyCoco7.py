@@ -2,14 +2,14 @@
 _base_='../_base_/samseg-maskrcnn.py'
 
 fold_num=0
-work_dir=f'./work_dirs/samseg-maskrcnn/BJFU/fold_{fold_num}'
+work_dir=f'./work_dirs/samseg-maskrcnn_MyCoco7/fold_{fold_num}'
 dataset_type = 'CocoDataset'
-data_root = f'data/datasets_BJFU/fold_{fold_num}/'
-test_root='data/datasets_BJFU/'
+data_root = f'data/MyCoco7/fold_{fold_num}/'
+test_root='data/MyCoco7/'
 batch_size = 1
 
 metainfo = {
-    'classes': ('Tree',)
+    'classes': ('crown',)
 }
 
 resume = False
