@@ -104,10 +104,40 @@ def main():
         cfg.resume = True
         cfg.load_from = args.resume
 
+    import copy
     # build the runner from config
     if 'runner_type' not in cfg:
         # build the default runner
-        runner = Runner.from_cfg(cfg)
+        cfg = copy.deepcopy(cfg)
+        runner = Runner(
+            model=cfg['model'],
+            work_dir=cfg['work_dir'],
+            train_dataloader=cfg.get('train_dataloader'),
+            val_dataloader=cfg.get('val_dataloader'),
+            test_dataloader=cfg.get('test_dataloader'),
+            train_cfg=cfg.get('train_cfg'),
+            val_cfg=cfg.get('val_cfg'),
+            test_cfg=cfg.get('test_cfg'),
+            auto_scale_lr=cfg.get('auto_scale_lr'),
+            optim_wrapper=cfg.get('optim_wrapper'),
+            param_scheduler=cfg.get('param_scheduler'),
+            val_evaluator=cfg.get('val_evaluator'),
+            test_evaluator=cfg.get('test_evaluator'),
+            default_hooks=cfg.get('default_hooks'),
+            custom_hooks=cfg.get('custom_hooks'),
+            data_preprocessor=cfg.get('data_preprocessor'),
+            load_from=cfg.get('load_from'),
+            resume=cfg.get('resume', False),
+            launcher=cfg.get('launcher', 'none'),
+            env_cfg=cfg.get('env_cfg', dict(dist_cfg=dict(backend='nccl'))),
+            log_processor=cfg.get('log_processor'),
+            log_level=cfg.get('log_level', 'INFO'),
+            visualizer=cfg.get('visualizer'),
+            default_scope=cfg.get('default_scope', 'mmengine'),
+            randomness=dict(seed=0),
+            experiment_name=cfg.get('experiment_name'),
+            cfg=cfg,
+        )
     else:
         # build customized runner from the registry
         # if 'runner_type' is set in the cfg

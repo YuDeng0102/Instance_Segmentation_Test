@@ -110,3 +110,4 @@ test_dataloader =  dict(
 val_evaluator = dict(ann_file=data_root + 'annotations/instances_val.json')
 test_evaluator = dict(ann_file=test_root + 'annotations/instances_test.json')
 train_cfg = dict(type='EpochBasedTrainLoop', max_epochs=max_epochs, val_interval=1)
+load_from=None

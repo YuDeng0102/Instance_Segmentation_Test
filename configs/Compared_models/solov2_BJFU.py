@@ -88,4 +88,4 @@ val_evaluator = dict(ann_file=data_root + 'annotations/instances_val.json')
 test_evaluator = dict(ann_file=test_root + 'annotations/instances_test.json')
 
 
-load_from ='https://download.openmmlab.com/mmdetection/v2.0/solov2/solov2_r50_fpn_3x_coco/solov2_r50_fpn_3x_coco_20220512_125856-fed092d4.pth'
+#load_from ='https://download.openmmlab.com/mmdetection/v2.0/solov2/solov2_r50_fpn_3x_coco/solov2_r50_fpn_3x_coco_20220512_125856-fed092d4.pth'

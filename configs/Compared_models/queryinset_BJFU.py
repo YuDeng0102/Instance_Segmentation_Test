@@ -183,4 +183,4 @@ val_evaluator = dict(ann_file=data_root + 'annotations/instances_val.json')
 test_evaluator = dict(ann_file=test_root + 'annotations/instances_test.json')
 
 
-load_from='https://download.openmmlab.com/mmdetection/v2.0/queryinst/queryinst_r50_fpn_mstrain_480-800_3x_coco/queryinst_r50_fpn_mstrain_480-800_3x_coco_20210901_103643-7837af86.pth'
+#load_from='https://download.openmmlab.com/mmdetection/v2.0/queryinst/queryinst_r50_fpn_mstrain_480-800_3x_coco/queryinst_r50_fpn_mstrain_480-800_3x_coco_20210901_103643-7837af86.pth'
