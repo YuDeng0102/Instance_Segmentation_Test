@@ -218,7 +218,7 @@ model = dict(
     type='MaskRCNN')
 num_classes = 1
 optim_wrapper = dict(
-    optimizer=dict(lr=0.0002, momentum=0.9, type='SGD', weight_decay=0.0001),
+    optimizer=dict(lr=0.02, momentum=0.9, type='SGD', weight_decay=0.0001),
     type='OptimWrapper')
 param_scheduler = [
     dict(begin=0, by_epoch=False, end=500, start_factor=0.01, type='LinearLR'),
@@ -228,8 +228,8 @@ param_scheduler = [
         end=50,
         gamma=0.1,
         milestones=[
-            22,
-            34,
+            23,
+            35,
         ],
         type='MultiStepLR'),
 ]

@@ -191,18 +191,18 @@ model = dict(
     type='YOLACT')
 num_classes = 1
 optim_wrapper = dict(
-    optimizer=dict(lr=0.001, momentum=0.9, type='SGD', weight_decay=0.0005),
+    optimizer=dict(lr=0.02, momentum=0.9, type='SGD', weight_decay=0.0001),
     type='OptimWrapper')
 param_scheduler = [
     dict(begin=0, by_epoch=False, end=500, start_factor=0.01, type='LinearLR'),
     dict(
         begin=0,
         by_epoch=True,
-        end=100,
+        end=50,
         gamma=0.1,
         milestones=[
-            16,
-            22,
+            21,
+            35,
         ],
         type='MultiStepLR'),
 ]

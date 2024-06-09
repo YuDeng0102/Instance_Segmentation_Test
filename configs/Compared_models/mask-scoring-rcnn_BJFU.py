@@ -5,16 +5,21 @@ num_classes=1
 train_cfg = dict(
     type='EpochBasedTrainLoop', max_epochs=max_epochs, val_interval=5)
 
+optim_wrapper = dict(
+    optimizer=dict(lr=0.02, momentum=0.9, type='SGD', weight_decay=0.0001),
+    type='OptimWrapper')
 param_scheduler = [
+    dict(begin=0, by_epoch=False, end=500, start_factor=0.01, type='LinearLR'),
     dict(
-        type='LinearLR', start_factor=0.001, by_epoch=False, begin=0, end=500),
-    dict(
-        type='MultiStepLR',
         begin=0,
-        end=max_epochs,
         by_epoch=True,
-        milestones=[16, 22],
-        gamma=0.1)
+        end=50,
+        gamma=0.1,
+        milestones=[
+            23,
+            35,
+        ],
+        type='MultiStepLR'),
 ]
 # 设置类别
 model = dict(

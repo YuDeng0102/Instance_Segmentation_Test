@@ -64,7 +64,7 @@ class Adapter(nn.Module):
         return x
 
 
-class Adapter_mona(nn.Module):
+class Adapter(nn.Module):
     def __init__(self,
                  in_dim, embeding_feature=64):
         super().__init__()
@@ -73,13 +73,13 @@ class Adapter_mona(nn.Module):
         self.nonlinear = F.gelu
         self.project2 = nn.Linear(embeding_feature, in_dim)
 
-        self.dropout = nn.Dropout(p=0.05)
+        self.dropout = nn.Dropout(p=0.1)
 
         self.conv1 = nn.Conv2d(embeding_feature, embeding_feature, kernel_size=3, padding=3 // 2,
                                groups=embeding_feature)
-        self.conv2 = nn.Conv2d(embeding_feature, embeding_feature, kernel_size=5, padding=5 // 2,
+        self.conv2 = nn.Conv2d(embeding_feature, embeding_feature, kernel_size=3, padding=3 // 2,
                                groups=embeding_feature)
-        self.conv3 = nn.Conv2d(embeding_feature, embeding_feature, kernel_size=7, padding=7 // 2,
+        self.conv3 = nn.Conv2d(embeding_feature, embeding_feature, kernel_size=3, padding=3 // 2,
                                groups=embeding_feature)
 
         self.norm = nn.LayerNorm(in_dim)
@@ -103,3 +103,5 @@ class Adapter_mona(nn.Module):
         nonlinear = self.dropout(nonlinear)
         project2 = self.project2(nonlinear)
         return identity + project2
+
+

@@ -2,10 +2,6 @@
 
 _base_='./datasets/coco_instance.py'
 
-
-
-
-
 default_scope = 'mmdet'
 work_dir = './work_dirs/samseg-mask2former'
 custom_imports = dict(imports=['mmdet.Adapted_SAM'], allow_failed_imports=False)

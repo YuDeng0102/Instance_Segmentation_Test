@@ -1,10 +1,9 @@
 
 _base_='../_base_/samseg-maskrcnn.py'
 
-fold_num=0
-work_dir=f'./work_dirs/samseg-maskrcnn/BJFU/fold_{fold_num}'
+work_dir=f'./work_dirs/samseg-maskrcnn/BJFU'
 dataset_type = 'CocoDataset'
-data_root = f'data/datasets_BJFU/fold_{fold_num}/'
+data_root = f'data/datasets_BJFU/'
 test_root='data/datasets_BJFU/'
 batch_size = 1
 
@@ -14,7 +13,7 @@ metainfo = {
 
 resume = False
 
-base_lr=1e-4
+base_lr=1e-2
 num_things_classes =1
 num_stuff_classes = 0
 num_classes = num_things_classes + num_stuff_classes
