@@ -11,6 +11,10 @@ from mmdet.registry import MODELS
 from ..My_Modules.common import LayerNorm2d, MLPBlock,Adapter
 from ..My_Modules.hfc_modules import PromptGenerator
 from ..My_Modules.Spatial_Priors_Modules import InteractionBlock, SpatialPriorModule, deform_inputs
+from ..My_Modules.Laplace_modules import *
+from ..My_Modules.EGCM import EGCM
+from torchvision.transforms.functional import rgb_to_grayscale
+
 from mmcv.ops.multi_scale_deform_attn import MultiScaleDeformableAttention
 
 
@@ -35,7 +39,7 @@ class Adapted_ImageEncoderViT(BaseModule):
         use_rel_pos: bool = False,
         rel_pos_zero_init: bool = True,
         window_size: int = 0,
-        interaction_indexes=[[0, 3], [4, 7], [8, 11]],
+        interaction_indexes=[[0, 2],[3,5],[6, 8], [9, 11]],
         global_attn_indexes: Tuple[int, ...] = (),
         init_cfg=None
     ) -> None:
@@ -124,9 +128,14 @@ class Adapted_ImageEncoderViT(BaseModule):
         self.input_type = 'fft'
         self.freq_nums = 0.4
         self.prompt_generator = PromptGenerator(self.scale_factor, embed_dim,
-                                               depth,self.input_type, self.freq_nums,
+                                               4,self.input_type, self.freq_nums,
                                                 img_size, patch_size)
-        self.alpha = nn.Parameter(0 * torch.ones((embed_dim)), requires_grad=True)
+        #self.alpha = nn.Parameter(0 * torch.ones((embed_dim)), requires_grad=True)
+
+        self.egcms=nn.ModuleList()
+        for i in range(4):
+            self.egcms.append(EGCM(embed_dim,64,64))
+
 
     def _add_level_embed(self, c2, c3, c4):
         c2 = c2 + self.level_embed[0]
@@ -141,6 +150,11 @@ class Adapted_ImageEncoderViT(BaseModule):
         c1, c2, c3, c4 = self.spm(x)
         c2, c3, c4 = self._add_level_embed(c2, c3, c4)
         c = torch.cat([c2, c3, c4], dim=1)
+
+        #eage feature
+        grayscale_img = rgb_to_grayscale(x)
+        edge_feature = make_laplace_pyramid(grayscale_img, 2, 1)
+        edge_feature = edge_feature[1]
 
 
         inp=x
@@ -164,9 +178,8 @@ class Adapted_ImageEncoderViT(BaseModule):
 
         for i, interactionBlock in enumerate(self.InteractionBlocks):
             indexes = self.interaction_indexes[i]
-            fft_info = prompt[indexes[0]:indexes[1] + 1]
-            x, c ,embed_x= interactionBlock(x, c, self.blocks[indexes[0]:indexes[1] + 1], deform_inputs1, deform_inputs2,
-                                    fft_info)
+            x=self.egcms[i](edge_feature,x,prompt[i].reshape(B, H, W, -1))
+            x, c ,embed_x= interactionBlock(x, c, self.blocks[indexes[0]:indexes[1] + 1], deform_inputs1, deform_inputs2)
             outputs.extend(embed_x)
 
         x = self.neck(x.permute(0, 3, 1, 2))

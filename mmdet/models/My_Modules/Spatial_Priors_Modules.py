@@ -217,7 +217,7 @@ class Extractor(nn.Module):
         #                          n_points=n_points, ratio=deform_ratio)
 
         self.attn = MultiScaleDeformableAttention(embed_dims=dim,num_levels=n_levels,num_heads=num_heads,
-                                                  num_points=n_points)
+                                                  num_points=n_points,batch_first=True)
 
         self.with_cffn = with_cffn
         self.with_cp = with_cp
@@ -231,7 +231,7 @@ class Extractor(nn.Module):
         def _inner_forward(query, feat):
             attn = self.attn(query=self.query_norm(query), reference_points=reference_points,
                              value=self.feat_norm(feat), spatial_shapes=spatial_shapes,
-                             level_start_index=level_start_index,batch_first=True)
+                             level_start_index=level_start_index)
             query = query + attn
 
             if self.with_cffn:
