@@ -17,11 +17,10 @@ base_lr=1e-2
 num_things_classes =1
 num_stuff_classes = 0
 num_classes = num_things_classes + num_stuff_classes
-max_epochs = 30
-num_queries =100
+max_epochs = 40
+
+
 sam_pretrain_ckpt_path = "checkpoints/sam_vit_b_01ec64.pth"
-
-
 model = dict(
     type='SAMSegMaskRCNN',
     backbone=dict(
@@ -64,27 +63,22 @@ model = dict(
                 type='CrossEntropyLoss', use_mask=True, loss_weight=1.0)))
 )
 
-param_scheduler = [
-    dict(
-        type='LinearLR', start_factor=0.001, by_epoch=False, begin=0, end=50),
-    dict(
-        type='CosineAnnealingLR',
-        eta_min=base_lr * 0.01,
-        begin=1,
-        end=max_epochs,
-        T_max=max_epochs,
-        by_epoch=True
-    )
-]
 optim_wrapper = dict(
-    type='OptimWrapper',
-    optimizer=dict(
-        type='Adam',
-        lr=base_lr,
-        weight_decay=0.001
-    )
-)
-
+    optimizer=dict(lr=0.02, momentum=0.9, type='SGD', weight_decay=0.0001),
+    type='OptimWrapper')
+param_scheduler = [
+    dict(begin=0, by_epoch=False, end=500, start_factor=0.01, type='LinearLR'),
+    dict(
+        begin=0,
+        by_epoch=True,
+        end=max_epochs,
+        gamma=0.1,
+        milestones=[
+            23,
+            35,
+        ],
+        type='MultiStepLR'),
+]
 train_dataloader = dict(
     batch_size=batch_size,
     dataset=dict(

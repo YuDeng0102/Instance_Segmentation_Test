@@ -14,7 +14,7 @@ param_scheduler = [
     dict(
         begin=0,
         by_epoch=True,
-        end=50,
+        end=max_epochs,
         gamma=0.1,
         milestones=[
             23,
