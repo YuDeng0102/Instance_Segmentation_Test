@@ -19,18 +19,17 @@ num_stuff_classes = 0
 num_classes = num_things_classes + num_stuff_classes
 max_epochs = 40
 
-
-sam_pretrain_name = "sam-vit-huge"
-sam_pretrain_ckpt_path = "checkpoints/sam_vit_h_4b8939.pth"
+sam_pretrain_name = "sam-vit-large"
+sam_pretrain_ckpt_path = "checkpoints/sam_vit_l_0b3195.pth"
 
 model = dict(
     type='SAMSegMaskRCNN',
     backbone=dict(
         type='Adapted_ImageEncoderViT',
-        embed_dim=1280,
-        depth=32,
+        embed_dim=1024,
+        depth=24,
         num_heads=16,
-        global_attn_indexes=[7, 15, 23, 31],
+        global_attn_indexes=[5, 11, 17, 23],
         init_cfg=dict(
             checkpoint=sam_pretrain_ckpt_path, type='Pretrained'),
     ),
