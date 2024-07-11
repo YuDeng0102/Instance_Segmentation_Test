@@ -29,16 +29,28 @@ resume = False
 
 
 
-base_lr=0.0001
-num_things_classes =7
+base_lr=0.02
+num_things_classes =1
 num_stuff_classes = 0
 num_classes = num_things_classes + num_stuff_classes
 max_epochs = 40
-
-
+optim_wrapper = dict(
+    optimizer=dict(lr=0.02, momentum=0.9, type='SGD', weight_decay=0.0001),
+    type='OptimWrapper')
+param_scheduler = [
+    dict(begin=0, by_epoch=False, end=500, start_factor=0.01, type='LinearLR'),
+    dict(
+        begin=0,
+        by_epoch=True,
+        end=max_epochs,
+        gamma=0.1,
+        milestones=[
+            23,
+            35,
+        ],
+        type='MultiStepLR'),
+]
 crop_size = (1024, 1024)
-
-
 batch_augments = [
     dict(
         type='BatchFixedSizePad',
@@ -49,28 +61,15 @@ batch_augments = [
         pad_seg=False)
 ]
 
+# optim_wrapper = dict(
+#     type='OptimWrapper',
+#     optimizer=dict(
+#         type='Adam',
+#         lr=base_lr,
+#         weight_decay=0.001
+#     )
+# )
 
-param_scheduler = [
-    dict(
-        type='LinearLR', start_factor=0.001, by_epoch=False, begin=0, end=50),
-    dict(
-        type='CosineAnnealingLR',
-        eta_min=base_lr * 0.001,
-        begin=1,
-        end=max_epochs,
-        T_max=max_epochs,
-        by_epoch=True
-    )
-]
-
-optim_wrapper = dict(
-    type='OptimWrapper',
-    optimizer=dict(
-        type='Adam',
-        lr=base_lr,
-        weight_decay=0.001
-    )
-)
 
 data_preprocessor = dict(
     type='DetDataPreprocessor',
@@ -82,19 +81,22 @@ data_preprocessor = dict(
     batch_augments=batch_augments
 )
 
-sam_pretrain_name = "sam-vit-base"
-sam_pretrain_ckpt_path = "checkpoints/sam_vit_b_01ec64.pth"
-
-
-maskrcnn_ckpt_path='checkpoints/mask2former_r50.pth'
-
+# sam_pretrain_name = "sam-vit-base"
+# sam_pretrain_ckpt_path = "checkpoints/sam_vit_b_01ec64.pth"
+sam_pretrain_name = "sam-vit-huge"
+sam_pretrain_ckpt_path = "checkpoints/sam_vit_h_4b8939.pth"
 model = dict(
     type='SAMSegMaskRCNN',
     data_preprocessor=data_preprocessor,
     backbone=dict(
-            init_cfg=dict(
-                checkpoint=sam_pretrain_ckpt_path, type='Pretrained'),
-            type='ImageEncoderViT'),
+        type='ImageEncoderViT',
+        embed_dim=1280,
+        depth=32,
+        num_heads=16,
+        global_attn_indexes=[7, 15, 23, 31],
+        init_cfg=dict(
+            checkpoint=sam_pretrain_ckpt_path, type='Pretrained'),
+    ),
     neck=dict(
         type='RSFPN',
         feature_aggregator=dict(
@@ -217,7 +219,6 @@ model = dict(
             mask_thr_binary=0.5))
 )
 
-load_from='https://download.openmmlab.com/mmdetection/v2.0/mask_rcnn/mask_rcnn_r50_fpn_1x_coco/mask_rcnn_r50_fpn_1x_coco_20200205-d4b0c5d6.pth'
 backend_args = None
 
 train_pipeline = [
@@ -258,17 +259,14 @@ test_pipeline = [
 
 # dataset settings
 dataset_type = 'CocoDataset'
-data_root = 'data/datasets_BJFU/fold_0/'
+data_root = 'data/datasets_BJFU/'
 test_root='data/datasets_BJFU/'
 batch_size = 1
 indices = None
-fold_num=0
-fold_dir=f'fold_{fold_num}'
-train_and_val_dataroot=data_root+fold_dir+'/'
 
 
 metainfo = {
-    'classes': ('1','2','3','4','5','6','7')
+    'classes': ('Tree',)
 }
 
 train_dataloader = dict(
@@ -299,22 +297,6 @@ val_evaluator = dict(ann_file=data_root + 'annotations/instances_val.json')
 test_evaluator = dict(ann_file=test_root + 'annotations/instances_test.json')
 
 
-train_cfg = dict(type='EpochBasedTrainLoop', max_epochs=max_epochs, val_interval=1)
+train_cfg = dict(type='EpochBasedTrainLoop', max_epochs=max_epochs, val_interval=3)
 val_cfg = dict(type='ValLoop')
 test_cfg = dict(type='TestLoop')
-
-base_lr = 0.0001
-
-# learning rate
-param_scheduler = [
-    dict(
-        type='LinearLR', start_factor=0.001, by_epoch=False, begin=0, end=50),
-    dict(
-        type='CosineAnnealingLR',
-        eta_min=base_lr * 0.001,
-        begin=1,
-        end=max_epochs,
-        T_max=max_epochs,
-        by_epoch=True
-    )
-]

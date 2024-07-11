@@ -42,8 +42,9 @@ class Adapted_ImageEncoderViT(BaseModule):
         window_size: int = 0,
         interaction_indexes=[[0, 2],[3,5],[6, 8], [9, 11]],
         global_attn_indexes: Tuple[int, ...] = (),
+        use_DTL=False,
         lora_dim=16,
-        fusion_size=3,
+        lora_fusion_size=3,
         start_lora_fusion=6,
         beta=1.0,
         init_cfg=None
@@ -141,14 +142,16 @@ class Adapted_ImageEncoderViT(BaseModule):
         # for i in range(4):
         #     self.egcms.append(EGCM(embed_dim,64,64))
 
-        self.lora_dict=nn.ModuleList([LoRALinear(embed_dim,embed_dim,lora_dim) for i in range(depth)])
-        self.start_lora_fusion=start_lora_fusion
-        if fusion_size > 0:
-            self.lora_fusion = nn.Conv2d(embed_dim, embed_dim, kernel_size=fusion_size, stride=1, padding='same',
-                                         groups=embed_dim, bias=False)
-        else:
-            self.lora_fusion = None
-        self.beta=beta
+        self.use_DTL=use_DTL
+        if use_DTL:
+            self.lora_dict=nn.ModuleList([LoRALinear(embed_dim,embed_dim,lora_dim) for i in range(depth)])
+            self.start_lora_fusion=start_lora_fusion
+            if lora_fusion_size > 0:
+                self.lora_fusion = nn.Conv2d(embed_dim, embed_dim, kernel_size=lora_fusion_size, stride=1, padding='same',
+                                             groups=embed_dim, bias=False)
+            else:
+                self.lora_fusion = None
+            self.beta=beta
 
     def _add_level_embed(self, c2, c3, c4):
         c2 = c2 + self.level_embed[0]
@@ -186,20 +189,21 @@ class Adapted_ImageEncoderViT(BaseModule):
 
         B, H, W, _ = x.shape
         for idx,blk in enumerate(self.blocks):
-            x=x+self.fft_alpha*prompt[idx].reshape(B,H,W,-1)
+            x=x+prompt[idx].reshape(B,H,W,-1)
 
-            residuals = self.lora_dict[idx](x)
+            if(self.use_DTL):
+                residuals = self.lora_dict[idx](x)
 
             x = blk(x)
-
-            if idx>=self.start_lora_fusion:
-                act_residuals = swish(residuals, self.beta)
-                if self.lora_fusion is not None:
-                    patch_residuals = act_residuals.reshape(B, H, W, self.embed_dim).permute(0, 3, 1, 2)
-                    fusion_residuals = self.lora_fusion(patch_residuals).permute(0, 2, 3, 1).reshape(B,H,W,self.embed_dim)
-                else:
-                    fusion_residuals = act_residuals
-                x = x + fusion_residuals
+            if (self.use_DTL):
+                if idx>=self.start_lora_fusion:
+                    act_residuals = swish(residuals, self.beta)
+                    if self.lora_fusion is not None:
+                        patch_residuals = act_residuals.reshape(B, H, W, self.embed_dim).permute(0, 3, 1, 2)
+                        fusion_residuals = self.lora_fusion(patch_residuals).permute(0, 2, 3, 1).reshape(B,H,W,self.embed_dim)
+                    else:
+                        fusion_residuals = act_residuals
+                    x = x + fusion_residuals
 
             outputs.append(x)
 

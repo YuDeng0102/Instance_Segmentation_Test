@@ -66,7 +66,7 @@ class Adapter(nn.Module):
 
 class Adapter(nn.Module):
     def __init__(self,
-                 in_dim, embeding_feature=64):
+                 in_dim, embeding_feature=48):
         super().__init__()
 
         self.project1 = nn.Linear(in_dim, embeding_feature)
