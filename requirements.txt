@@ -3,3 +3,4 @@
 -r requirements/runtime.txt
 transformers
 einops
+timm

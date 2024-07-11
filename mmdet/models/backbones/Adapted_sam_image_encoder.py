@@ -12,6 +12,7 @@ from ..My_Modules.common import LayerNorm2d, MLPBlock,Adapter
 from ..My_Modules.hfc_modules import PromptGenerator
 from ..My_Modules.Spatial_Priors_Modules import InteractionBlock, SpatialPriorModule, deform_inputs
 from ..My_Modules.Laplace_modules import *
+from ..My_Modules.LORA_linear import *
 from ..My_Modules.EGCM import EGCM
 from torchvision.transforms.functional import rgb_to_grayscale
 
@@ -41,6 +42,10 @@ class Adapted_ImageEncoderViT(BaseModule):
         window_size: int = 0,
         interaction_indexes=[[0, 2],[3,5],[6, 8], [9, 11]],
         global_attn_indexes: Tuple[int, ...] = (),
+        lora_dim=16,
+        fusion_size=3,
+        start_lora_fusion=6,
+        beta=1.0,
         init_cfg=None
     ) -> None:
         """
@@ -116,26 +121,34 @@ class Adapted_ImageEncoderViT(BaseModule):
             LayerNorm2d(out_chans),
         )
 
-        self.interaction_indexes = interaction_indexes
-        self.spm = SpatialPriorModule(embed_dim=embed_dim)
-        self.level_embed = nn.Parameter(torch.zeros(3, embed_dim))
+        # self.interaction_indexes = interaction_indexes
+#         self.spm = SpatialPriorModule(embed_dim=embed_dim)
+#         self.level_embed = nn.Parameter(torch.zeros(3, embed_dim))
 
-        self.InteractionBlocks = nn.ModuleList(
-            [InteractionBlock(dim=embed_dim) for i in range(len(interaction_indexes))])
-
+#         self.InteractionBlocks = nn.ModuleList(
+#             [InteractionBlock(dim=embed_dim) for i in range(len(interaction_indexes))])
+        self.embed_dim=embed_dim
 
         self.scale_factor =32
         self.input_type = 'fft'
         self.freq_nums = 0.4
         self.prompt_generator = PromptGenerator(self.scale_factor, embed_dim,
-                                               4,self.input_type, self.freq_nums,
+                                               depth,self.input_type, self.freq_nums,
                                                 img_size, patch_size)
-        #self.alpha = nn.Parameter(0 * torch.ones((embed_dim)), requires_grad=True)
+        self.fft_alpha = nn.Parameter(0 * torch.ones((embed_dim)), requires_grad=True)
 
-        self.egcms=nn.ModuleList()
-        for i in range(4):
-            self.egcms.append(EGCM(embed_dim,64,64))
+        # self.egcms=nn.ModuleList()
+        # for i in range(4):
+        #     self.egcms.append(EGCM(embed_dim,64,64))
 
+        self.lora_dict=nn.ModuleList([LoRALinear(embed_dim,embed_dim,lora_dim) for i in range(depth)])
+        self.start_lora_fusion=start_lora_fusion
+        if fusion_size > 0:
+            self.lora_fusion = nn.Conv2d(embed_dim, embed_dim, kernel_size=fusion_size, stride=1, padding='same',
+                                         groups=embed_dim, bias=False)
+        else:
+            self.lora_fusion = None
+        self.beta=beta
 
     def _add_level_embed(self, c2, c3, c4):
         c2 = c2 + self.level_embed[0]
@@ -147,14 +160,14 @@ class Adapted_ImageEncoderViT(BaseModule):
         outputs = []
 
         # SPM forward
-        c1, c2, c3, c4 = self.spm(x)
-        c2, c3, c4 = self._add_level_embed(c2, c3, c4)
-        c = torch.cat([c2, c3, c4], dim=1)
+        # c1, c2, c3, c4 = self.spm(x)
+        # c2, c3, c4 = self._add_level_embed(c2, c3, c4)
+        # c = torch.cat([c2, c3, c4], dim=1)
 
         #eage feature
-        grayscale_img = rgb_to_grayscale(x)
-        edge_feature = make_laplace_pyramid(grayscale_img, 2, 1)
-        edge_feature = edge_feature[1]
+        # grayscale_img = rgb_to_grayscale(x)
+        # edge_feature = make_laplace_pyramid(grayscale_img, 2, 1)
+        # edge_feature = edge_feature[1]
 
 
         inp=x
@@ -172,20 +185,34 @@ class Adapted_ImageEncoderViT(BaseModule):
 
 
         B, H, W, _ = x.shape
-        # for idx,blk in enumerate(self.blocks):
-        #     x = blk(x)
-        #     outputs.append(x)
+        for idx,blk in enumerate(self.blocks):
+            x=x+self.fft_alpha*prompt[idx].reshape(B,H,W,-1)
 
-        for i, interactionBlock in enumerate(self.InteractionBlocks):
-            indexes = self.interaction_indexes[i]
-            x=self.egcms[i](edge_feature,x,prompt[i].reshape(B, H, W, -1))
-            x, c ,embed_x= interactionBlock(x, c, self.blocks[indexes[0]:indexes[1] + 1], deform_inputs1, deform_inputs2)
-            outputs.extend(embed_x)
+            residuals = self.lora_dict[idx](x)
+
+            x = blk(x)
+
+            if idx>=self.start_lora_fusion:
+                act_residuals = swish(residuals, self.beta)
+                if self.lora_fusion is not None:
+                    patch_residuals = act_residuals.reshape(B, H, W, self.embed_dim).permute(0, 3, 1, 2)
+                    fusion_residuals = self.lora_fusion(patch_residuals).permute(0, 2, 3, 1).reshape(B,H,W,self.embed_dim)
+                else:
+                    fusion_residuals = act_residuals
+                x = x + fusion_residuals
+
+            outputs.append(x)
+
+        # for i, interactionBlock in enumerate(self.InteractionBlocks):
+        #     indexes = self.interaction_indexes[i]
+        #     fft_info=prompt[indexes[0]:indexes[1]+1]
+            # x=self.egcms[i](edge_feature,x,prompt[i].reshape(B, H, W, -1))
+            # x=x+prompt[i].reshape(B,H,W,-1)
+            # x, c ,embed_x= interactionBlock(x, c, self.blocks[indexes[0]:indexes[1] + 1], deform_inputs1, deform_inputs2,fft_info)
+            # outputs.extend(embed_x)
 
         x = self.neck(x.permute(0, 3, 1, 2))
-
         outputs = [x, ] + outputs
-
         return outputs
 
 

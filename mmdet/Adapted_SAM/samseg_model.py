@@ -63,7 +63,7 @@ class SAMSegMaskRCNN(MaskRCNN):
     ):
         super().__init__(*args, **kwargs)
 
-        require_img_encoder = ['adapter', 'prompt_generator', 'InteractionBlocks', 'level_embed','egcms']
+        require_img_encoder = ['adapter', 'prompt_generator','egcms','lora','alpha','beta']
         for name, param in self.backbone.named_parameters():
             requires_grad = False
             for u in require_img_encoder:
