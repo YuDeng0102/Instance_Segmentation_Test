@@ -108,5 +108,5 @@ test_dataloader =  dict(
 # 修改评价指标相关配置
 val_evaluator = dict(ann_file=data_root + 'annotations/instances_val.json')
 test_evaluator = dict(ann_file=test_root + 'annotations/instances_test.json')
-train_cfg = dict(type='EpochBasedTrainLoop', max_epochs=max_epochs, val_interval=1)
+train_cfg = dict(type='EpochBasedTrainLoop', max_epochs=max_epochs, val_interval=3)
 load_from=None

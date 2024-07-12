@@ -4,3 +4,4 @@
 transformers
 einops
 timm
+peft
