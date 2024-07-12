@@ -124,5 +124,5 @@ work_dirs/
 
 
 #checkpoints
-/checkpoints/*
+/checkpoints/sam*
 !/checkpoints/*.sh
