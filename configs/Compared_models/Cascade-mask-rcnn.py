@@ -2,21 +2,30 @@ _base_ = '../cascade_rcnn/cascade-mask-rcnn_r50_fpn_20e_coco.py'
 
 
 max_epochs = 50
-num_classes=2
-train_cfg = dict(
-    type='EpochBasedTrainLoop', max_epochs=max_epochs, val_interval=5)
+num_classes=1
+base_lr=1e-4
+# learning rate
+# param_scheduler = [
+#     dict(type='LinearLR', start_factor=0.001, by_epoch=False, begin=0, end=50),
+#     # dict(
+#     #     type='MultiStepLR',
+#     #     begin=0,
+#     #     end=max_epochs,
+#     #     by_epoch=True,
+#     #     milestones=[80，81],
+#     #     gamma=0.1
+#     # )
+# ]
 
-param_scheduler = [
-    dict(
-        type='LinearLR', start_factor=0.001, by_epoch=False, begin=0, end=500),
-    dict(
-        type='MultiStepLR',
-        begin=0,
-        end=max_epochs,
-        by_epoch=True,
-        milestones=[16, 22],
-        gamma=0.1)
-]
+optim_wrapper = dict(
+    type='AmpOptimWrapper',
+    dtype='float16',
+    optimizer=dict(
+        type='AdamW',
+        lr=base_lr,
+        weight_decay=0.05,
+    )
+)
 
 model = dict(
     backbone=dict(
@@ -86,18 +95,17 @@ model = dict(
 
 
 # 修改数据集相关配置
-
-
-fold_num=0
-work_dir=f'./work_dirs/Cascade-mask-rcnn/MyCoco8/fold_{fold_num}'
-dataset_type = 'CocoDataset'
-data_root = f'data/datasets_MyCoco8/fold_{fold_num}/'
-test_root='data/datasets_MyCoco8/'
-batch_size = 8
-
 metainfo = {
-    'classes': ('Tree','a')
+    'classes': ('crown',)
 }
+
+
+work_dir=f'./work_dirs/Cascade-mask-rcnn/data--/'
+dataset_type = 'CocoDataset'
+data_root = 'data/data--/'
+batch_size = 4
+
+
 
 train_dataloader = dict(
     batch_size=batch_size,
@@ -114,20 +122,20 @@ val_dataloader = dict(
         data_prefix=dict(img='val/')))
 test_dataloader =  dict(
         dataset=dict(
-        data_root=test_root,
+        data_root=data_root,
         metainfo=metainfo,
         ann_file='annotations/instances_test.json',
         data_prefix=dict(img='test/')))
 
 # 修改评价指标相关配置
 val_evaluator = dict(ann_file=data_root + 'annotations/instances_val.json')
-test_evaluator = dict(ann_file=test_root + 'annotations/instances_test.json')
+test_evaluator = dict(ann_file=data_root + 'annotations/instances_test.json')
 
 
-train_cfg = dict(type='EpochBasedTrainLoop', max_epochs=max_epochs, val_interval=1)
+train_cfg = dict(type='EpochBasedTrainLoop', max_epochs=max_epochs, val_interval=4)
 val_cfg = dict(type='ValLoop')
 test_cfg = dict(type='TestLoop')
 
 
 
-load_from='https://download.openmmlab.com/mmdetection/v2.0/cascade_rcnn/cascade_mask_rcnn_r101_fpn_mstrain_3x_coco/cascade_mask_rcnn_r101_fpn_mstrain_3x_coco_20210628_165236-51a2d363.pth'
+# load_from='https://download.openmmlab.com/mmdetection/v2.0/cascade_rcnn/cascade_mask_rcnn_r101_fpn_mstrain_3x_coco/cascade_mask_rcnn_r101_fpn_mstrain_3x_coco_20210628_165236-51a2d363.pth'

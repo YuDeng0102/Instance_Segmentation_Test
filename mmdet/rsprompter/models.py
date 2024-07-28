@@ -74,6 +74,9 @@ class RSPrompterAnchor(MaskRCNN):
             ]
         self._set_grad_false(self.frozen_modules)
 
+        trainable_num = sum(p.numel() for p in self.parameters() if p.requires_grad == True)
+        print(f'tot paramaters:{trainable_num / (2 ** 20)}M')
+
     def _set_grad_false(self, module_list=[]):
         for module in module_list:
             module.eval()

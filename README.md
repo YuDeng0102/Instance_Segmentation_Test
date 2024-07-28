@@ -4,6 +4,6 @@
 ## 下载hugging-face权重
 ```
 cd checkpoints
-bash bash download_huggingface.sh facebook/sam-vit-base sam-vit-base
+bash download_huggingface.sh facebook/sam-vit-base sam-vit-base
 cd ..
 ```

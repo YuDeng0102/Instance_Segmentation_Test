@@ -7,7 +7,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from typing import Type
+from typing import Type, Tuple
 
 
 class MLPBlock(nn.Module):
@@ -105,3 +105,51 @@ class Adapter(nn.Module):
         return identity + project2
 
 
+class features_feat(nn.Module):
+    def __init__(
+        self,
+        vit_dim,
+        transformer_dim=256,
+        cnn_dim=256,
+    ) -> None:
+        super().__init__()
+        self.embedding_encoder = nn.Sequential(
+                                        nn.ConvTranspose2d(transformer_dim, transformer_dim // 4, kernel_size=2, stride=2),
+                                        LayerNorm2d(transformer_dim // 4),
+                                        nn.GELU(),
+                                        nn.ConvTranspose2d(transformer_dim // 4, transformer_dim // 8, kernel_size=2, stride=2),
+                                    )
+        self.compress_vit_feat = nn.Sequential(
+                                        nn.ConvTranspose2d(vit_dim, transformer_dim, kernel_size=2, stride=2),
+                                        LayerNorm2d(transformer_dim),
+                                        nn.GELU(),
+                                        nn.ConvTranspose2d(transformer_dim, transformer_dim // 8, kernel_size=2, stride=2))
+        self.compress_cnn_feat = nn.Sequential(
+                                        nn.ConvTranspose2d(cnn_dim, cnn_dim // 2, kernel_size=2, stride=2),
+                                        LayerNorm2d(cnn_dim // 2),
+                                        nn.GELU(),
+                                        nn.ConvTranspose2d(cnn_dim // 2, cnn_dim // 4, kernel_size=2, stride=2),
+                                        LayerNorm2d(cnn_dim // 4),
+                                        nn.GELU(),
+                                        nn.ConvTranspose2d(cnn_dim // 4, 32, kernel_size=2, stride=2),
+                                    )
+
+    def forward(
+        self,
+        cnn_feature: torch.Tensor,
+        image_embeddings: torch.Tensor,
+        interm_embeddings: torch.Tensor,
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        vit_features = interm_embeddings[2].permute(0, 3, 1, 2) # early-layer ViT feature, after 1st global attention block in ViT
+        hq_features = self.embedding_encoder(image_embeddings) + self.compress_vit_feat(vit_features)
+        cnn_features_feat = self.compress_cnn_feat(cnn_feature)
+        cnn_features_feat = F.interpolate(cnn_features_feat, size=hq_features.shape[2:], mode='bilinear')
+        return hq_features + cnn_features_feat
+
+
+if __name__=="__main__":
+    m1=features_feat(768)
+    sum_param=0
+    for name, p in m1.named_parameters():
+        sum_param += p.numel()
+    print(f'{sum_param / (2 ** 20)}M')
